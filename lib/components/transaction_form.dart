@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'adaptative_date_picker.dart';
+import 'adaptativ_button.dart';
+import 'adaptative_text_field.dart';
 
 class TransactionForm extends StatefulWidget {
   final void Function(String, double, DateTime) onSubmit;
 
-  TransactionForm(this.onSubmit);
+  TransactionForm(this.onSubmit) {
+    print("Constructor TransactionForm");
+  }
 
   @override
-  _TransactionFormState createState() => _TransactionFormState();
+  _TransactionFormState createState() {
+    print("Create State");
+    return _TransactionFormState();
+  }
 }
 
 class _TransactionFormState extends State<TransactionForm> {
@@ -15,6 +22,14 @@ class _TransactionFormState extends State<TransactionForm> {
   final _valueController = TextEditingController();
 
   var _selectedDate = DateTime.now();
+
+  _TransactionFormState() {
+    print("TransactionFormState");
+  }
+  @override
+  void initState() {
+    super.initState();
+  }
 
   _submitForm() {
     final title = _titleController.text;
@@ -27,26 +42,10 @@ class _TransactionFormState extends State<TransactionForm> {
     widget.onSubmit(title, value, _selectedDate);
   }
 
-  _showDatePicker() {
-    showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
-    ).then((pickedDate) {
-      if (pickedDate == null) {
-        return;
-      }
-
-      setState(() {
-        _selectedDate = pickedDate;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return  SingleChildScrollView(
+    print('build() _TransactionForm');
+    return SingleChildScrollView(
       child: Card(
         elevation: 5,
         child: Padding(
@@ -58,50 +57,30 @@ class _TransactionFormState extends State<TransactionForm> {
           ),
           child: Column(
             children: [
-              TextField(
+              AdaptativeTextField(
                 controller: _titleController,
                 onSubmitted: (_) => _submitForm(),
-                decoration: InputDecoration(labelText: 'Título'),
+                label: 'Título',
               ),
-              TextField(
+              AdaptativeTextField(
                   controller: _valueController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   onSubmitted: (_) => _submitForm(),
-                  decoration: InputDecoration(labelText: 'Valor (R\$)')),
-              Container(
-                height: 70,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(_selectedDate == null
-                          ? 'Nenhuma data selecionada!'
-                          : 'Data Selecionada: ${DateFormat('dd/MM/y').format(_selectedDate)}'),
-                    ),
-                    TextButton(
-                      child: Text(
-                        'Selecionar Data',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      onPressed: _showDatePicker,
-                    ),
-                  ],
-                ),
-              ),
+                  label: 'Valor (R\$)'),
+              AdaptativeDatePicker(
+                  selectedDate: _selectedDate,
+                  onDateChanged: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  }),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: Theme.of(context).primaryColor,
-                        onPrimary: Colors.white,
-                      ),
-                      onPressed: _submitForm,
-                      child: Text(
-                        'Nova Transação',
-                        style: TextStyle(color: Theme.of(context).buttonColor),
-                      )),
+                  AdaptativeButton(
+                    label: 'Nova Transação',
+                    onPressed: _submitForm,
+                  ),
                 ],
               )
             ],

@@ -1,14 +1,12 @@
-import 'package:expenses/components/chart.dart';
-import 'package:expenses/components/transaction_form.dart';
 import 'dart:math';
 import 'dart:io';
-import 'package:expenses/models/transaction.dart';
+import 'package:expenses/components/transaction_form.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import '/components/transaction_form.dart';
 import '/components/transaction_list.dart';
-import 'package:flutter/material.dart';
-
+import '/components/chart.dart';
+import 'package:expenses/models/transaction.dart';
 import 'models/transaction.dart';
 
 main() => runApp(ExpensesApp());
@@ -53,9 +51,26 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final List<Transaction> _transactions = [];
   bool _showChart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance!.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print(state);
+  }
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((tr) {
@@ -105,11 +120,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('build() _MyHomePageState');
     final mediaQuery = MediaQuery.of(context);
     bool isLandscape = mediaQuery.orientation == Orientation.landscape;
 
     final iconList = Platform.isIOS ? CupertinoIcons.refresh : Icons.list;
-    final iconChart = Platform.isIOS ? CupertinoIcons.refresh : Icons.show_chart;
+    final iconChart =
+        Platform.isIOS ? CupertinoIcons.refresh : Icons.show_chart;
 
     final actions = [
       if (isLandscape)
@@ -126,32 +143,18 @@ class _MyHomePageState extends State<MyHomePage> {
         () => _openTransactionFormModal(context),
       ),
     ];
-    final PreferredSizeWidget appBar;
-    if (Platform.isIOS) {
-      appBar = CupertinoNavigationBar(
-        middle: Text('Despesas Pessoais'),
-        trailing: Row(
-          children: actions,
-          mainAxisSize: MainAxisSize.min,
-        ),
-      );
-    } else {
-      appBar = AppBar(
-        title: Text(
-          'Despesas Pessoais',
-          // style: TextStyle(
-          //   fontSize: 20 * mediaQuery.textScaleFactor,
-          // ),
-        ),
-        actions: actions,
-      );
-    }
+    final PreferredSizeWidget appBar = AppBar(
+      title: Text('Despesas Pessoais'),
+      actions: actions,
+    );
+
     final availableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
     final bodyPage = SafeArea(
         child: SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           if (isLandscape)
             // solção com o switch foi trocada pelo icone gráfico e lista

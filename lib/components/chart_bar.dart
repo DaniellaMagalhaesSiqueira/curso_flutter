@@ -1,5 +1,4 @@
-import 'package:expenses/components/chart.dart';
-import 'package:expenses/models/transaction.dart';
+
 import 'package:flutter/material.dart';
 
 class ChartBar extends StatelessWidget {
@@ -12,6 +11,7 @@ class ChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('build() _ChartBar');
     return LayoutBuilder(
       builder: (ctx, constraints) {
         return Column(
